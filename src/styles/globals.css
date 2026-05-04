@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #111111;
+  --color-ink-2: #2a2a2a;
+  --color-surface: #FFFFFF;
+  --color-bg: #FAFAF8;
+  --color-gold: #C8973A;
+  --color-gold-dark: #b08230;
+  --color-muted: #6b6b6b;
+  --color-line: #e5e5e5;
+  --color-line-2: #d4d4d4;
+  --color-success: #2a8a4a;
+  --color-error: #dc2626;
+
+  --font-head: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-serif: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06), 0 12px 40px rgba(0, 0, 0, 0.04);
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-hero: 0 24px 60px rgba(0, 0, 0, 0.10);
+
+  --radius-s: 4px;
+  --radius-m: 6px;
+  --radius-l: 10px;
+  --radius-xl: 16px;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-y: scroll;
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    background: var(--color-bg);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+@layer components {
+  .step-enter {
+    animation: stepFadeIn 350ms ease-out;
+  }
+
+  .filled {
+    background: rgba(200, 151, 58, 0.12);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+
+  .dotted-bg {
+    background-image: radial-gradient(circle, #c0c0c0 0.6px, transparent 0.6px);
+    background-size: 7px 7px;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--color-line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--color-gold);
+    border-radius: 2px;
+    transition: width 400ms ease;
+  }
+}
+
+@keyframes stepFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
