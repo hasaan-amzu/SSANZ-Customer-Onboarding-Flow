@@ -39,7 +39,7 @@ export interface PortalConfig {
     clauses: ContractClause[];
   };
   stripeLinks: Record<string, string>;
-  calendlyUrl: string;
+  calendarEmbedUrl: string;
   meetingTitle: string;
   meetingDuration: string;
   meetingPlatform: string;

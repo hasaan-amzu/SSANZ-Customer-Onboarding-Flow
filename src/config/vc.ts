@@ -102,7 +102,7 @@ export const vcConfig: PortalConfig = {
     linkedin: '',
     fullstack: '',
   },
-  calendlyUrl: COMPANY.calendlyUrl,
+  calendarEmbedUrl: COMPANY.calendarEmbedUrl,
   meetingTitle: 'Kickoff Strategy Call',
   meetingDuration: '30 minutes',
   meetingPlatform: 'Google Meet',

@@ -1,25 +1,4 @@
-import { useState } from 'react';
 import type { PortalConfig, FormData, PaymentRecord, SignatureRecord, BookingRecord } from '../../types/portal';
-
-const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const SLOTS = ['9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '1:00 PM', '1:30 PM', '2:00 PM', '3:00 PM', '4:00 PM'];
-const BLOCKED_DAYS = new Set([7, 13, 21]);
-
-function buildMonth(year: number, month: number): (Date | null)[] {
-  const first = new Date(year, month, 1);
-  const firstDow = (first.getDay() + 6) % 7;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells: (Date | null)[] = [];
-  for (let i = 0; i < firstDow; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
-  while (cells.length % 7 !== 0) cells.push(null);
-  return cells;
-}
-
-function sameDay(a: Date | null, b: Date | null): boolean {
-  return !!a && !!b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
 
 interface StepKickoffProps {
   config: PortalConfig;
@@ -56,7 +35,6 @@ export function StepKickoff({ config, data, payment, signature, booking, onBook,
       data={data}
       payment={payment}
       pkg={pkg}
-      formatMoney={formatMoney}
       onBook={onBook}
     />
   );
@@ -69,53 +47,14 @@ interface CalendarPickerProps {
   data: FormData;
   payment: PaymentRecord | null;
   pkg: PortalConfig['packages'][0] | undefined;
-  formatMoney: (n: number) => string;
   onBook: (record: BookingRecord) => void;
 }
 
 function CalendarPicker({ config, data, payment, pkg, onBook }: CalendarPickerProps) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const [view, setView] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
-  const [selDate, setSelDate] = useState<Date | null>(null);
-  const [confirming, setConfirming] = useState<string | null>(null);
-
-  const cells = buildMonth(view.getFullYear(), view.getMonth());
-
-  const isAvailable = (d: Date | null): boolean => {
-    if (!d) return false;
-    if (d < today) return false;
-    const days = Math.round((d.getTime() - today.getTime()) / 86400000);
-    if (days > 45) return false;
-    const dow = d.getDay();
-    if (dow === 0 || dow === 6) return false;
-    if (BLOCKED_DAYS.has(d.getDate())) return false;
-    return true;
-  };
-
-  const prevMonth = () => {
-    const n = new Date(view);
-    n.setMonth(n.getMonth() - 1);
-    if (n < new Date(today.getFullYear(), today.getMonth(), 1)) return;
-    setView(n); setSelDate(null); setConfirming(null);
-  };
-
-  const nextMonth = () => {
-    const n = new Date(view);
-    n.setMonth(n.getMonth() + 1);
-    setView(n); setSelDate(null); setConfirming(null);
-  };
-
-  const confirmBook = () => {
-    if (!selDate || !confirming) return;
-    const [hm, ap] = confirming.split(' ');
-    const [rawH, m] = hm.split(':').map(Number);
-    const h = (ap === 'PM' && rawH < 12) ? rawH + 12 : rawH;
-    const dt = new Date(selDate);
-    dt.setHours(h, m, 0, 0);
+  const handleConfirmBooked = () => {
     onBook({
-      datetime: dt.toISOString(),
-      display: dt.toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }),
+      datetime: new Date().toISOString(),
+      display: 'Booked via Google Calendar',
     });
   };
 
@@ -130,9 +69,9 @@ function CalendarPicker({ config, data, payment, pkg, onBook }: CalendarPickerPr
         Payment confirmed ({payment?.ref}). Pick a time that works — we'll take it from here.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 border border-line rounded-l overflow-hidden bg-white shadow-subtle">
-        {/* Left - Event info */}
-        <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-line">
+      <div className="grid grid-cols-1 md:grid-cols-5 border border-line rounded-l overflow-hidden bg-white shadow-subtle">
+        {/* Left - Event info (2 cols) */}
+        <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-line md:col-span-2">
           <div className="font-mono text-[10px] tracking-widest uppercase text-muted mb-2">
             SSANZ Growth AI
           </div>
@@ -156,87 +95,25 @@ function CalendarPicker({ config, data, payment, pkg, onBook }: CalendarPickerPr
           </div>
         </div>
 
-        {/* Right - Calendar */}
-        <div className="p-6 md:p-8">
-          {/* Month nav */}
-          <div className="flex items-center justify-between mb-4">
-            <button onClick={prevMonth} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-bg text-ink cursor-pointer border-0 bg-transparent text-lg"
-              disabled={view.getFullYear() === today.getFullYear() && view.getMonth() === today.getMonth()}>
-              ‹
-            </button>
-            <h5 className="font-bold text-sm">{MONTHS[view.getMonth()]} {view.getFullYear()}</h5>
-            <button onClick={nextMonth} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-bg text-ink cursor-pointer border-0 bg-transparent text-lg">
-              ›
-            </button>
-          </div>
-
-          {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-1 mb-4">
-            {DOW.map(d => (
-              <div key={d} className="text-[10px] font-semibold text-muted text-center py-1 uppercase">
-                {d}
-              </div>
-            ))}
-            {cells.map((d, i) => {
-              if (!d) return <div key={i} />;
-              const avail = isAvailable(d);
-              const sel = sameDay(d, selDate);
-              const isToday = sameDay(d, today);
-              return (
-                <button
-                  key={i}
-                  disabled={!avail}
-                  onClick={() => { setSelDate(d); setConfirming(null); }}
-                  className={`w-full aspect-square flex items-center justify-center text-sm rounded-full cursor-pointer border-0 transition-colors
-                    ${sel ? 'bg-ink text-white font-bold' : ''}
-                    ${!sel && avail ? 'hover:bg-bg text-ink bg-transparent' : ''}
-                    ${!avail ? 'text-line cursor-not-allowed bg-transparent' : ''}
-                    ${isToday && !sel ? 'font-bold' : ''}
-                  `}
-                >
-                  {d.getDate()}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Time slots */}
-          {selDate ? (
-            <div>
-              <div className="font-mono text-[10px] tracking-widest uppercase text-muted mb-2">
-                {selDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-              </div>
-              <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                {SLOTS.map(t => (
-                  <div key={t} className="flex items-center gap-2">
-                    <button
-                      onClick={() => setConfirming(t)}
-                      className={`flex-1 py-2.5 text-sm text-center rounded-m border cursor-pointer transition-colors
-                        ${confirming === t
-                          ? 'bg-gold/10 border-gold text-ink font-semibold'
-                          : 'border-line hover:border-ink bg-white text-ink'
-                        }`}
-                    >
-                      {t}
-                    </button>
-                    {confirming === t && (
-                      <button
-                        onClick={confirmBook}
-                        className="px-5 py-2.5 text-sm font-semibold bg-ink text-white rounded-m cursor-pointer border-0 hover:bg-gold hover:text-ink transition-colors"
-                      >
-                        Confirm
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="mt-4 py-7 text-center bg-bg rounded-m text-sm text-muted">
-              Select an available date to see times.
-            </div>
-          )}
+        {/* Right - Google Calendar embed (3 cols) */}
+        <div className="md:col-span-3">
+          <iframe
+            src={config.calendarEmbedUrl}
+            className="w-full border-0"
+            style={{ minHeight: '580px' }}
+            title="Book a kickoff call"
+          />
         </div>
+      </div>
+
+      {/* Continue button after booking */}
+      <div className="mt-5 text-center">
+        <button
+          onClick={handleConfirmBooked}
+          className="px-8 py-3.5 text-base font-semibold bg-ink text-white rounded-m cursor-pointer border-0 hover:bg-gold hover:text-ink transition-colors"
+        >
+          I've booked my call — finish onboarding →
+        </button>
       </div>
 
       <div className="mt-4 text-center font-mono text-xs text-muted">

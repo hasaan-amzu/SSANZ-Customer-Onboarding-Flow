@@ -99,7 +99,7 @@ export const b2bConfig: PortalConfig = {
     linkedin: '',
     fullstack: '',
   },
-  calendlyUrl: COMPANY.calendlyUrl,
+  calendarEmbedUrl: COMPANY.calendarEmbedUrl,
   meetingTitle: 'Kickoff Strategy Call',
   meetingDuration: '30 minutes',
   meetingPlatform: 'Google Meet',
