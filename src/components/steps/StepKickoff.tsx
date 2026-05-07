@@ -32,7 +32,7 @@ interface StepKickoffProps {
   saving?: boolean;
 }
 
-export function StepKickoff({ config, data, payment, signature, booking, onBook, onReset, saving: _saving }: StepKickoffProps) {
+export function StepKickoff({ config, data, payment, signature, booking, onBook, onReset }: StepKickoffProps) {
   const pkg = config.packages.find(p => p.id === data.packageId);
   const formatMoney = (n: number) => '$' + (n || 0).toLocaleString();
 
@@ -109,8 +109,8 @@ function CalendarPicker({ config, data, payment, pkg, onBook }: CalendarPickerPr
   const confirmBook = () => {
     if (!selDate || !confirming) return;
     const [hm, ap] = confirming.split(' ');
-    let [h, m] = hm.split(':').map(Number);
-    if (ap === 'PM' && h < 12) h += 12;
+    const [rawH, m] = hm.split(':').map(Number);
+    const h = (ap === 'PM' && rawH < 12) ? rawH + 12 : rawH;
     const dt = new Date(selDate);
     dt.setHours(h, m, 0, 0);
     onBook({

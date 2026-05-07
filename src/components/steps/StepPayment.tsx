@@ -14,6 +14,9 @@ export function StepPayment({ config, data, onPay, onBack, saving }: StepPayment
   const pkg = config.packages.find(p => p.id === data.packageId);
   const formatMoney = (n: number) => '$' + (n || 0).toLocaleString() + '.00';
   const total = (pkg?.setupFee || 0) + (pkg?.monthlyFee || 0);
+  const [nextChargeDate] = useState(() =>
+    new Date(Date.now() + 30 * 86400000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  );
 
   const [card, setCard] = useState({
     email: data.email,
@@ -105,7 +108,7 @@ export function StepPayment({ config, data, onPay, onBack, saving }: StepPayment
           </div>
 
           <div className="mt-6 text-xs text-white/40 leading-relaxed">
-            Next charge: {new Date(Date.now() + 30 * 86400000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} for {formatMoney(pkg?.monthlyFee || 0)}.
+            Next charge: {nextChargeDate} for {formatMoney(pkg?.monthlyFee || 0)}.
           </div>
         </div>
 
