@@ -10,6 +10,10 @@ export const supabase = (supabaseUrl && supabaseKey)
 
 export const MOCK_MODE = !supabase;
 
+if (MOCK_MODE && import.meta.env.PROD) {
+  console.error('[SSANZ] Supabase not configured — running without database persistence. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+}
+
 // Step 1: Create submission with client details
 export async function createSubmission(
   portalType: 'b2b' | 'vc',

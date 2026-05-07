@@ -25,6 +25,7 @@ const INITIAL_STATE: PortalState = {
 export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string; name: string; setupFee: number; monthlyFee: number }[]) {
   const [state, setState] = useState<PortalState>(INITIAL_STATE);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const submissionId = useRef<string | null>(null);
   const completedSteps = useRef<Set<string>>(new Set());
 
@@ -43,16 +44,18 @@ export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string;
   // Step 1 → 2: Create or update submission in Supabase
   const submitDetails = useCallback(async () => {
     setSaving(true);
+    setError(null);
     try {
       const pkg = packages.find(p => p.id === state.formData.packageId);
       if (submissionId.current) {
-        await updateDetails(
+        const ok = await updateDetails(
           submissionId.current,
           state.formData,
           pkg?.name || '',
           pkg?.setupFee || 0,
           pkg?.monthlyFee || 0,
         );
+        if (!ok) { setError('Failed to save. Please try again.'); return; }
       } else {
         const id = await createSubmission(
           portalType,
@@ -61,12 +64,14 @@ export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string;
           pkg?.setupFee || 0,
           pkg?.monthlyFee || 0,
         );
+        if (!id) { setError('Failed to save. Please try again.'); return; }
         submissionId.current = id;
         completedSteps.current.add('details');
       }
       goTo(2);
     } catch (err) {
       console.error('Submit details failed:', err);
+      setError('Something went wrong. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -75,16 +80,19 @@ export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string;
   // Step 2 → 3: Save signature
   const submitSignature = useCallback(async (sig: SignatureRecord) => {
     setSaving(true);
+    setError(null);
     try {
       setState(prev => ({ ...prev, signature: sig }));
       if (submissionId.current) {
         const isFirstTime = !completedSteps.current.has('signed');
-        await updateSignature(submissionId.current, sig, isFirstTime);
+        const ok = await updateSignature(submissionId.current, sig, isFirstTime);
+        if (!ok) { setError('Failed to save signature. Please try again.'); return; }
         completedSteps.current.add('signed');
       }
       goTo(3);
     } catch (err) {
       console.error('Submit signature failed:', err);
+      setError('Something went wrong. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -93,16 +101,19 @@ export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string;
   // Step 3 → 4: Save payment
   const submitPayment = useCallback(async (payment: PaymentRecord) => {
     setSaving(true);
+    setError(null);
     try {
       setState(prev => ({ ...prev, payment }));
       if (submissionId.current) {
         const isFirstTime = !completedSteps.current.has('paid');
-        await updatePayment(submissionId.current, payment, isFirstTime);
+        const ok = await updatePayment(submissionId.current, payment, isFirstTime);
+        if (!ok) { setError('Failed to save payment. Please try again.'); return; }
         completedSteps.current.add('paid');
       }
       goTo(4);
     } catch (err) {
       console.error('Submit payment failed:', err);
+      setError('Something went wrong. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -111,15 +122,18 @@ export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string;
   // Step 4: Save booking
   const submitBooking = useCallback(async (booking: BookingRecord) => {
     setSaving(true);
+    setError(null);
     try {
       setState(prev => ({ ...prev, booking }));
       if (submissionId.current) {
         const isFirstTime = !completedSteps.current.has('booked');
-        await updateBooking(submissionId.current, booking, isFirstTime);
+        const ok = await updateBooking(submissionId.current, booking, isFirstTime);
+        if (!ok) { setError('Failed to save booking. Please try again.'); return; }
         completedSteps.current.add('booked');
       }
     } catch (err) {
       console.error('Submit booking failed:', err);
+      setError('Something went wrong. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -134,6 +148,7 @@ export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string;
   return {
     state,
     saving,
+    error,
     goTo,
     updateFormData,
     submitDetails,

@@ -163,7 +163,7 @@ export function StepPayment({ config, data, onPay, onBack, saving }: StepPayment
 
           <button
             type="submit"
-            disabled={!valid || status !== 'idle'}
+            disabled={!valid || status !== 'idle' || saving}
             className={`w-full py-3.5 text-base font-semibold rounded-m transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed
               ${status === 'success' ? 'bg-success text-white' : 'bg-ink text-white hover:bg-gold hover:text-ink'}`}
           >

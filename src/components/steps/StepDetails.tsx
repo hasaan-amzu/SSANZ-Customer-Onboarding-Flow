@@ -33,6 +33,7 @@ export function StepDetails({ config, data, onChange, onNext, saving }: StepDeta
     const value = (data[field as keyof FormData] || '').trim();
     if (!value) return 'Required';
     if (field === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) return 'Enter a valid email';
+    if (field === 'phone' && !/^\+?[\d\s\-().]{7,20}$/.test(value)) return 'Enter a valid phone number';
     return null;
   };
 
@@ -40,6 +41,7 @@ export function StepDetails({ config, data, onChange, onNext, saving }: StepDeta
     const value = (data[field as keyof FormData] || '').trim();
     if (!value) return false;
     if (field === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) return false;
+    if (field === 'phone' && !/^\+?[\d\s\-().]{7,20}$/.test(value)) return false;
     return true;
   });
 
@@ -67,29 +69,29 @@ export function StepDetails({ config, data, onChange, onNext, saving }: StepDeta
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-        <Input label="Full name" required type="text" autoComplete="name"
+        <Input label="Full name" required type="text" autoComplete="name" maxLength={200}
           value={data.fullName} onChange={e => onChange({ fullName: e.target.value })}
           onBlur={() => touch('fullName')} placeholder="Jane Doe" error={getError('fullName')} />
-        <Input label="Email" required type="email" autoComplete="email"
+        <Input label="Email" required type="email" autoComplete="email" maxLength={254}
           value={data.email} onChange={e => onChange({ email: e.target.value })}
           onBlur={() => touch('email')} placeholder="jane@company.com" error={getError('email')} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-        <Input label="Phone" required type="tel" autoComplete="tel"
+        <Input label="Phone" required type="tel" autoComplete="tel" maxLength={30}
           value={data.phone} onChange={e => onChange({ phone: e.target.value })}
           onBlur={() => touch('phone')} placeholder="+1 555 123 4567" error={getError('phone')} />
-        <Input label="Company" required type="text" autoComplete="organization"
+        <Input label="Company" required type="text" autoComplete="organization" maxLength={200}
           value={data.company} onChange={e => onChange({ company: e.target.value })}
           onBlur={() => touch('company')} placeholder="Acme Inc." error={getError('company')} />
       </div>
 
       <div className={`grid grid-cols-1 ${config.formFields.showWebsite ? 'md:grid-cols-2' : ''} gap-3 mb-3`}>
-        <Input label="Role / Title" required type="text"
+        <Input label="Role / Title" required type="text" maxLength={150}
           value={data.role} onChange={e => onChange({ role: e.target.value })}
           onBlur={() => touch('role')} placeholder="CEO / Head of Growth" error={getError('role')} />
         {config.formFields.showWebsite && (
-          <Input label="Company website" type="url"
+          <Input label="Company website" type="url" maxLength={300}
             value={data.website} onChange={e => onChange({ website: e.target.value })}
             placeholder="company.com" hint="Optional — reference only" />
         )}

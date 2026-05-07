@@ -48,7 +48,7 @@ export const vcConfig: PortalConfig = {
   contract: {
     entityName: COMPANY.legalName,
     entityType: COMPANY.entityType,
-    jurisdiction: 'Delaware',
+    jurisdiction: 'Texas',
     clauses: [
       {
         number: 1,
@@ -88,7 +88,7 @@ export const vcConfig: PortalConfig = {
       {
         number: 8,
         title: 'Governing Law',
-        body: 'This Agreement shall be governed by the laws of the State of Delaware, without regard to its conflict of laws principles. The Parties consent to the exclusive jurisdiction of the state and federal courts located in Delaware for any dispute arising hereunder.',
+        body: 'This Agreement shall be governed by the laws of the State of Texas, without regard to its conflict of laws principles. The Parties consent to the exclusive jurisdiction of the state and federal courts located in Texas for any dispute arising hereunder.',
       },
       {
         number: 9,

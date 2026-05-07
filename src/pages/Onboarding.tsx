@@ -21,6 +21,7 @@ export default function Onboarding() {
   const {
     state,
     saving,
+    error,
     goTo,
     updateFormData,
     submitDetails,
@@ -35,6 +36,11 @@ export default function Onboarding() {
       step={state.step}
       portalType={resolvedType}
     >
+      {error && (
+        <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
       {state.step === 1 && (
         <StepDetails
           config={config}
