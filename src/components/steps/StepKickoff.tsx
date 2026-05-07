@@ -29,9 +29,10 @@ interface StepKickoffProps {
   booking: BookingRecord | null;
   onBook: (record: BookingRecord) => void;
   onReset: () => void;
+  saving?: boolean;
 }
 
-export function StepKickoff({ config, data, payment, signature, booking, onBook, onReset }: StepKickoffProps) {
+export function StepKickoff({ config, data, payment, signature, booking, onBook, onReset, saving: _saving }: StepKickoffProps) {
   const pkg = config.packages.find(p => p.id === data.packageId);
   const formatMoney = (n: number) => '$' + (n || 0).toLocaleString();
 

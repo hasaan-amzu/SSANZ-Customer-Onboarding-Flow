@@ -8,9 +8,10 @@ interface StepAgreementProps {
   data: FormData;
   onSign: (record: SignatureRecord) => void;
   onBack: () => void;
+  saving?: boolean;
 }
 
-export function StepAgreement({ config, data, onSign, onBack }: StepAgreementProps) {
+export function StepAgreement({ config, data, onSign, onBack, saving }: StepAgreementProps) {
   const pkg = config.packages.find(p => p.id === data.packageId);
   const formatMoney = (n: number) => '$' + n.toLocaleString();
   const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -171,7 +172,7 @@ export function StepAgreement({ config, data, onSign, onBack }: StepAgreementPro
         <Button variant="ghost" onClick={onBack} type="button">
           &larr; Back
         </Button>
-        <Button size="lg" disabled={!canSign} onClick={handleSign} type="button" fullWidth>
+        <Button size="lg" disabled={!canSign || saving} onClick={handleSign} type="button" fullWidth>
           {ctaText}
         </Button>
       </div>

@@ -18,7 +18,17 @@ export default function Onboarding() {
   const { portalType } = useParams<{ portalType: string }>();
   const resolvedType = (portalType === 'b2b' || portalType === 'vc') ? portalType : 'b2b';
   const config = CONFIGS[resolvedType] || b2bConfig;
-  const { state, goTo, updateFormData, setSignature, setPayment, setBooking, reset } = usePortalState();
+  const {
+    state,
+    saving,
+    goTo,
+    updateFormData,
+    submitDetails,
+    submitSignature,
+    submitPayment,
+    submitBooking,
+    reset,
+  } = usePortalState(resolvedType, config.packages);
 
   return (
     <PortalShell
@@ -30,23 +40,26 @@ export default function Onboarding() {
           config={config}
           data={state.formData}
           onChange={updateFormData}
-          onNext={() => goTo(2)}
+          onNext={submitDetails}
+          saving={saving}
         />
       )}
       {state.step === 2 && (
         <StepAgreement
           config={config}
           data={state.formData}
-          onSign={(sig) => { setSignature(sig); goTo(3); }}
+          onSign={submitSignature}
           onBack={() => goTo(1)}
+          saving={saving}
         />
       )}
       {state.step === 3 && (
         <StepPayment
           config={config}
           data={state.formData}
-          onPay={(pay) => { setPayment(pay); goTo(4); }}
+          onPay={submitPayment}
           onBack={() => goTo(2)}
+          saving={saving}
         />
       )}
       {state.step === 4 && (
@@ -56,8 +69,9 @@ export default function Onboarding() {
           payment={state.payment}
           signature={state.signature}
           booking={state.booking}
-          onBook={setBooking}
+          onBook={submitBooking}
           onReset={reset}
+          saving={saving}
         />
       )}
     </PortalShell>

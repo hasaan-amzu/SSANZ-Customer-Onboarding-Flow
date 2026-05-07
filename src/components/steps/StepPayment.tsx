@@ -7,9 +7,10 @@ interface StepPaymentProps {
   data: FormData;
   onPay: (record: PaymentRecord) => void;
   onBack: () => void;
+  saving?: boolean;
 }
 
-export function StepPayment({ config, data, onPay, onBack }: StepPaymentProps) {
+export function StepPayment({ config, data, onPay, onBack, saving }: StepPaymentProps) {
   const pkg = config.packages.find(p => p.id === data.packageId);
   const formatMoney = (n: number) => '$' + (n || 0).toLocaleString() + '.00';
   const total = (pkg?.setupFee || 0) + (pkg?.monthlyFee || 0);

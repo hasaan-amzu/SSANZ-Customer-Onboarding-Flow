@@ -10,11 +10,12 @@ interface StepDetailsProps {
   data: FormData;
   onChange: (partial: Partial<FormData>) => void;
   onNext: () => void;
+  saving?: boolean;
 }
 
 const OPTION_LABELS = ['Option A', 'Option B', 'Option C'];
 
-export function StepDetails({ config, data, onChange, onNext }: StepDetailsProps) {
+export function StepDetails({ config, data, onChange, onNext, saving }: StepDetailsProps) {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const touch = (field: string) => setTouched(prev => ({ ...prev, [field]: true }));
@@ -134,9 +135,9 @@ export function StepDetails({ config, data, onChange, onNext }: StepDetailsProps
       </div>
 
       <div className="flex justify-center">
-        <Button type="submit" size="lg" disabled={!isValid}>
-          Continue
-          <span aria-hidden="true" className="ml-2">&rarr;</span>
+        <Button type="submit" size="lg" disabled={!isValid || saving}>
+          {saving ? 'Saving...' : 'Continue'}
+          {!saving && <span aria-hidden="true" className="ml-2">&rarr;</span>}
         </Button>
       </div>
     </form>
