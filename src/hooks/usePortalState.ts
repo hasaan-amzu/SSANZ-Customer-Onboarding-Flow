@@ -64,7 +64,7 @@ function tryRestoreFromPaymentRedirect(portalType: 'b2b' | 'vc'): {
 
     return {
       state: {
-        step: 3,
+        step: 4,
         formData: saved.formData,
         signature: saved.signature,
         payment: null,
