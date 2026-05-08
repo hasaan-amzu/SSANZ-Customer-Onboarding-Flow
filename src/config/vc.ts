@@ -98,9 +98,9 @@ export const vcConfig: PortalConfig = {
     ],
   },
   stripeLinks: {
-    email: '',
-    linkedin: '',
-    fullstack: '',
+    email: import.meta.env.VITE_STRIPE_VC_EMAIL || '',
+    linkedin: import.meta.env.VITE_STRIPE_VC_LINKEDIN || '',
+    fullstack: import.meta.env.VITE_STRIPE_VC_FULLSTACK || '',
   },
   calendarEmbedUrl: COMPANY.calendarEmbedUrl,
   meetingTitle: 'Kickoff Strategy Call',

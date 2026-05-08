@@ -2,6 +2,8 @@ import { useState, useCallback, useRef } from 'react';
 import type { PortalState, FormData, SignatureRecord, PaymentRecord, BookingRecord } from '../types/portal';
 import { createSubmission, updateDetails, updateSignature, updatePayment, updateBooking } from '../lib/supabase';
 
+const STORAGE_KEY = 'ssanz_payment_redirect';
+
 const INITIAL_FORM: FormData = {
   fullName: '',
   email: '',
@@ -22,12 +24,68 @@ const INITIAL_STATE: PortalState = {
   booking: null,
 };
 
+interface PaymentRedirectState {
+  submissionId: string;
+  portalType: 'b2b' | 'vc';
+  formData: FormData;
+  signature: SignatureRecord | null;
+  completedSteps: string[];
+  redirectedAt: number;
+}
+
+function tryRestoreFromPaymentRedirect(portalType: 'b2b' | 'vc'): {
+  state: PortalState;
+  savedSubmissionId: string;
+  savedCompletedSteps: string[];
+} | null {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') !== 'success') return null;
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+
+    const saved: PaymentRedirectState = JSON.parse(raw);
+
+    if (saved.portalType !== portalType) return null;
+
+    const fiveMinutes = 5 * 60 * 1000;
+    if (Date.now() - saved.redirectedAt > fiveMinutes) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+
+    localStorage.removeItem(STORAGE_KEY);
+
+    // Clean up URL params
+    const url = new URL(window.location.href);
+    url.searchParams.delete('payment');
+    window.history.replaceState({}, '', url.pathname);
+
+    return {
+      state: {
+        step: 3,
+        formData: saved.formData,
+        signature: saved.signature,
+        payment: null,
+        booking: null,
+      },
+      savedSubmissionId: saved.submissionId,
+      savedCompletedSteps: saved.completedSteps,
+    };
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+    return null;
+  }
+}
+
 export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string; name: string; setupFee: number; monthlyFee: number }[]) {
-  const [state, setState] = useState<PortalState>(INITIAL_STATE);
+  const [restored] = useState(() => tryRestoreFromPaymentRedirect(portalType));
+  const [state, setState] = useState<PortalState>(restored?.state || INITIAL_STATE);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const submissionId = useRef<string | null>(null);
-  const completedSteps = useRef<Set<string>>(new Set());
+  const submissionId = useRef<string | null>(restored?.savedSubmissionId || null);
+  const completedSteps = useRef<Set<string>>(new Set(restored?.savedCompletedSteps || []));
 
   const goTo = useCallback((step: number) => {
     setState(prev => ({ ...prev, step }));
@@ -139,6 +197,19 @@ export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string;
     }
   }, []);
 
+  const persistForPayment = useCallback(() => {
+    if (!submissionId.current) return;
+    const data: PaymentRedirectState = {
+      submissionId: submissionId.current,
+      portalType,
+      formData: state.formData,
+      signature: state.signature,
+      completedSteps: Array.from(completedSteps.current),
+      redirectedAt: Date.now(),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, [portalType, state.formData, state.signature]);
+
   const reset = useCallback(() => {
     setState(INITIAL_STATE);
     submissionId.current = null;
@@ -149,12 +220,14 @@ export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string;
     state,
     saving,
     error,
+    restoredFromPayment: !!restored,
     goTo,
     updateFormData,
     submitDetails,
     submitSignature,
     submitPayment,
     submitBooking,
+    persistForPayment,
     reset,
   };
 }

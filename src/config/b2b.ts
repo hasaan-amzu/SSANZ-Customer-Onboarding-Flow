@@ -95,9 +95,9 @@ export const b2bConfig: PortalConfig = {
     ],
   },
   stripeLinks: {
-    email: '',
-    linkedin: '',
-    fullstack: '',
+    email: import.meta.env.VITE_STRIPE_B2B_EMAIL || '',
+    linkedin: import.meta.env.VITE_STRIPE_B2B_LINKEDIN || '',
+    fullstack: import.meta.env.VITE_STRIPE_B2B_FULLSTACK || '',
   },
   calendarEmbedUrl: COMPANY.calendarEmbedUrl,
   meetingTitle: 'Kickoff Strategy Call',

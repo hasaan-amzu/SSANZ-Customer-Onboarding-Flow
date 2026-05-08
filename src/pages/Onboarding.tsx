@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { b2bConfig } from '../config/b2b';
 import { vcConfig } from '../config/vc';
@@ -22,14 +23,33 @@ export default function Onboarding() {
     state,
     saving,
     error,
+    restoredFromPayment,
     goTo,
     updateFormData,
     submitDetails,
     submitSignature,
     submitPayment,
     submitBooking,
+    persistForPayment,
     reset,
   } = usePortalState(resolvedType, config.packages);
+
+  // Handle return from Stripe: auto-submit payment and advance to Step 4
+  const paymentHandled = useRef(false);
+  useEffect(() => {
+    if (restoredFromPayment && !paymentHandled.current) {
+      paymentHandled.current = true;
+      const record = {
+        ref: 'stripe_payment_link',
+        amount: (() => {
+          const pkg = config.packages.find(p => p.id === state.formData.packageId);
+          return (pkg?.setupFee || 0) + (pkg?.monthlyFee || 0);
+        })(),
+        timestamp: new Date().toISOString(),
+      };
+      submitPayment(record);
+    }
+  }, [restoredFromPayment, config.packages, state.formData.packageId, submitPayment]);
 
   return (
     <PortalShell
@@ -63,7 +83,7 @@ export default function Onboarding() {
         <StepPayment
           config={config}
           data={state.formData}
-          onPay={submitPayment}
+          onPersistAndRedirect={persistForPayment}
           onBack={() => goTo(2)}
           saving={saving}
         />
