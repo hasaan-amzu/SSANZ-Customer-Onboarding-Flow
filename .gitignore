@@ -16,6 +16,9 @@ dist-ssr
 .env.local
 .env.production
 
+# Supabase Edge Functions (deployed separately, local reference only)
+supabase/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

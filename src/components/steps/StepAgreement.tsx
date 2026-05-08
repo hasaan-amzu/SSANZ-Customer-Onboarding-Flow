@@ -33,13 +33,29 @@ export function StepAgreement({ config, data, onSign, onBack, saving }: StepAgre
   const nameMatches = sig.trim().toLowerCase() === data.fullName.trim().toLowerCase() && sig.trim().length > 2;
   const canSign = scrolled && nameMatches && agreed;
 
-  const handleSign = () => {
-    if (!canSign) return;
+  const [signing, setSigning] = useState(false);
+
+  const handleSign = async () => {
+    if (!canSign || signing) return;
+    setSigning(true);
+
+    let ip = 'unavailable';
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      if (supabaseUrl) {
+        const res = await fetch(`${supabaseUrl}/functions/v1/client-ip`);
+        const data = await res.json();
+        if (data.ip) ip = data.ip;
+      }
+    } catch {
+      // IP capture is non-blocking — proceed with 'unavailable' if it fails
+    }
+
     onSign({
       name: sig.trim(),
       agreed: true,
       timestamp: new Date().toISOString(),
-      ip: '203.0.113.42',
+      ip,
     });
   };
 
@@ -172,8 +188,8 @@ export function StepAgreement({ config, data, onSign, onBack, saving }: StepAgre
         <Button variant="ghost" onClick={onBack} type="button">
           &larr; Back
         </Button>
-        <Button size="lg" disabled={!canSign || saving} onClick={handleSign} type="button" fullWidth>
-          {ctaText}
+        <Button size="lg" disabled={!canSign || saving || signing} onClick={handleSign} type="button" fullWidth>
+          {signing ? 'Signing...' : ctaText}
         </Button>
       </div>
     </div>
