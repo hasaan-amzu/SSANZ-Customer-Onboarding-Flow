@@ -379,7 +379,7 @@ function Confirmation({ config, data, payment, signature, booking, formatMoney, 
         {[
           { label: 'Package', value: <><strong>{pkg?.name}</strong> &middot; {formatMoney(pkg?.setupFee || 0)} setup + {formatMoney(pkg?.monthlyFee || 0)}/mo</>, meta: <><span className="text-gold">✓</span> Selected</> },
           { label: 'Agreement', value: <>Signed by {data.fullName}, {data.role}</>, meta: signedAt ? <><span className="text-gold">✓</span> {fmtTime(signedAt)}</> : null },
-          { label: 'Payment', value: <>{formatMoney(payment?.amount || 0)} &middot; Ref <code className="font-mono text-xs">{payment?.ref}</code></>, meta: paidAt ? <><span className="text-gold">✓</span> {fmtTime(paidAt)}</> : null },
+          { label: 'Payment', value: <>{formatMoney(payment?.amount || 0)} &middot; Ref <code className="font-mono text-xs">{(payment?.ref || '').slice(-8)}</code></>, meta: paidAt ? <><span className="text-gold">✓</span> {fmtTime(paidAt)}</> : null },
           { label: 'Kickoff call', value: <>{booking.display} &middot; {config.meetingPlatform}</>, meta: <><span className="text-gold">✓</span> Booked</> },
         ].map((row, i) => (
           <div key={i} className="flex items-center justify-between px-6 py-4 border-b border-line last:border-0">
