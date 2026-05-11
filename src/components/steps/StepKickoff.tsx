@@ -1,7 +1,9 @@
 import { useState, useCallback, useMemo } from 'react';
 import type { PortalConfig, FormData, PaymentRecord, SignatureRecord, BookingRecord } from '../../types/portal';
 
-const EDGE_FN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-calendar`;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const EDGE_FN_URL = `${SUPABASE_URL}/functions/v1/google-calendar`;
+const CONFIRMATION_URL = `${SUPABASE_URL}/functions/v1/send-confirmation`;
 const BUSINESS_TZ = 'America/Chicago';
 
 interface TimeSlot {
@@ -82,6 +84,7 @@ export function StepKickoff({ config, data, payment, signature, booking, onBook,
       config={config}
       data={data}
       payment={payment}
+      signature={signature}
       pkg={pkg}
       onBook={onBook}
     />
@@ -92,11 +95,12 @@ interface CalendarPickerProps {
   config: PortalConfig;
   data: FormData;
   payment: PaymentRecord | null;
+  signature: SignatureRecord | null;
   pkg: PortalConfig['packages'][0] | undefined;
   onBook: (record: BookingRecord) => void;
 }
 
-function CalendarPicker({ config, data, payment, pkg, onBook }: CalendarPickerProps) {
+function CalendarPicker({ config, data, payment, signature, pkg, onBook }: CalendarPickerProps) {
   const userTz = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
   const [today] = useState(() => new Date());
   const [viewMonth, setViewMonth] = useState(() => today.getMonth());
@@ -149,10 +153,35 @@ function CalendarPicker({ config, data, payment, pkg, onBook }: CalendarPickerPr
       const offsetMin = getBusinessOffsetMin(selectedDate);
       const utcDate = ctToUTC(selectedDate, selectedSlot.ctHour, selectedSlot.ctMinute, offsetMin);
       const displayDate = utcDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      const bookingDisplay = `${displayDate} at ${selectedSlot.localDisplay}`;
+
+      // Fire confirmation email (non-blocking — don't delay the UI)
+      if (SUPABASE_URL) {
+        fetch(CONFIRMATION_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clientName: data.fullName,
+            company: data.company,
+            email: data.email,
+            phone: data.phone,
+            role: data.role,
+            packageName: pkg?.name || 'N/A',
+            setupFee: pkg?.setupFee || 0,
+            monthlyFee: pkg?.monthlyFee || 0,
+            signedDate: signature?.timestamp
+              ? new Date(signature.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+              : '',
+            bookingDisplay,
+            meetLink: result.meetLink || '',
+            portalType: config.portalType,
+          }),
+        }).catch(err => console.error('Confirmation email failed:', err));
+      }
 
       onBook({
         datetime: result.start || utcDate.toISOString(),
-        display: `${displayDate} at ${selectedSlot.localDisplay}`,
+        display: bookingDisplay,
       });
     } catch {
       setError('Failed to book. The slot may have just been taken — please pick another time.');
