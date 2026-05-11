@@ -146,6 +146,7 @@ export async function updateBooking(submissionId: string, booking: BookingRecord
       status: 'completed',
       booking_datetime: booking.datetime,
       booking_display: booking.display,
+      confirmation_email_sent: true,
     })
     .eq('id', submissionId);
 
@@ -154,7 +155,10 @@ export async function updateBooking(submissionId: string, booking: BookingRecord
     return false;
   }
 
-  if (logAudit) await logEvent(submissionId, 'booked', { display: booking.display });
+  if (logAudit) {
+    await logEvent(submissionId, 'booked', { display: booking.display });
+    await logEvent(submissionId, 'email_sent', { to: 'client' });
+  }
   return true;
 }
 
