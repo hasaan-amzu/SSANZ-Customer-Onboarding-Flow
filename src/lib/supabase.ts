@@ -114,7 +114,9 @@ export async function updateSignature(submissionId: string, sig: SignatureRecord
 }
 
 // Step 3: Save payment
-export async function updatePayment(submissionId: string, payment: PaymentRecord, logAudit = true): Promise<boolean> {
+// Note: The stripe-webhook Edge Function also updates status to 'paid' and logs its own audit event.
+// To avoid duplicate audit entries, we skip logging here — the webhook is the authoritative source.
+export async function updatePayment(submissionId: string, payment: PaymentRecord, _logAudit = true): Promise<boolean> {
   if (!supabase) return true;
 
   const { error } = await supabase
@@ -128,11 +130,11 @@ export async function updatePayment(submissionId: string, payment: PaymentRecord
     .eq('id', submissionId);
 
   if (error) {
+    // If status is already 'paid' (webhook beat us), the trigger won't fire — that's fine
     console.error('Failed to update payment:', error);
     return false;
   }
 
-  if (logAudit) await logEvent(submissionId, 'paid', { ref: payment.ref, amount: payment.amount });
   return true;
 }
 

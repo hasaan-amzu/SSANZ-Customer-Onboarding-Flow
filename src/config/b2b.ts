@@ -6,7 +6,7 @@ export const b2bConfig: PortalConfig = {
   landing: {
     eyebrow: 'B2B CLIENT ONBOARDING',
     headline: 'Begin your',
-    headlineAccent: 'engagement',
+    headlineAccent: 'Engagement',
     description: 'A concierge onboarding experience for founders and revenue leaders deploying our AI growth engines across email, LinkedIn, and full-stack workflows.',
     ctaText: 'Begin onboarding',
   },
