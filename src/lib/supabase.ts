@@ -162,6 +162,60 @@ export async function updateBooking(submissionId: string, booking: BookingRecord
   return true;
 }
 
+// Fetch a submission by ID (for session restoration)
+export async function getSubmission(submissionId: string): Promise<{
+  portalType: 'b2b' | 'vc';
+  status: string;
+  formData: import('../types/portal').FormData;
+  signature: import('../types/portal').SignatureRecord | null;
+  payment: import('../types/portal').PaymentRecord | null;
+  booking: import('../types/portal').BookingRecord | null;
+} | null> {
+  if (!supabase) return null;
+
+  const { data: row, error } = await supabase
+    .from('onboarding_submissions')
+    .select('*')
+    .eq('id', submissionId)
+    .single();
+
+  if (error || !row) {
+    console.error('Failed to fetch submission:', error);
+    return null;
+  }
+
+  return {
+    portalType: row.portal_type,
+    status: row.status,
+    formData: {
+      fullName: row.full_name || '',
+      email: row.email || '',
+      phone: row.phone || '',
+      company: row.company_name || '',
+      website: row.company_website || '',
+      role: row.role_title || '',
+      industry: row.industry || '',
+      referral: row.referral_source || '',
+      packageId: row.package_id || '',
+    },
+    signature: row.signature_agreed ? {
+      name: row.signature_name || '',
+      agreed: true,
+      timestamp: row.signature_timestamp || '',
+      ip: row.signature_ip || '',
+    } : null,
+    payment: row.stripe_payment_ref ? {
+      ref: row.stripe_payment_ref,
+      amount: row.payment_amount || 0,
+      timestamp: row.payment_timestamp || '',
+    } : null,
+    booking: row.booking_datetime ? {
+      datetime: row.booking_datetime,
+      display: row.booking_display || '',
+    } : null,
+  };
+}
+
 // Audit log helper
 async function logEvent(submissionId: string, eventType: string, metadata: Record<string, unknown>) {
   if (!supabase) return;
