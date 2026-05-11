@@ -25,6 +25,7 @@ export default function Onboarding() {
     loading,
     error,
     restoredFromPayment,
+    stripeSessionId,
     goTo,
     updateFormData,
     submitDetails,
@@ -41,7 +42,7 @@ export default function Onboarding() {
     if (restoredFromPayment && !paymentHandled.current) {
       paymentHandled.current = true;
       const record = {
-        ref: 'stripe_payment_link',
+        ref: stripeSessionId || 'stripe_payment_link',
         amount: (() => {
           const pkg = config.packages.find(p => p.id === state.formData.packageId);
           return (pkg?.setupFee || 0) + (pkg?.monthlyFee || 0);
@@ -50,7 +51,7 @@ export default function Onboarding() {
       };
       submitPayment(record);
     }
-  }, [restoredFromPayment, config.packages, state.formData.packageId, submitPayment]);
+  }, [restoredFromPayment, stripeSessionId, config.packages, state.formData.packageId, submitPayment]);
 
   // Loading state while restoring session from DB
   if (loading) {

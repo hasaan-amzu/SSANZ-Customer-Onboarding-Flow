@@ -41,6 +41,7 @@ function tryRestoreFromPaymentRedirect(portalType: 'b2b' | 'vc'): {
   state: PortalState;
   savedSubmissionId: string;
   savedCompletedSteps: string[];
+  stripeSessionId: string | null;
 } | null {
   const params = new URLSearchParams(window.location.search);
   if (params.get('payment') !== 'success') return null;
@@ -59,10 +60,14 @@ function tryRestoreFromPaymentRedirect(portalType: 'b2b' | 'vc'): {
       return null;
     }
 
+    // Capture Stripe checkout session ID from redirect URL (if present)
+    const stripeSessionId = params.get('session_id') || null;
+
     localStorage.removeItem(PAYMENT_REDIRECT_KEY);
 
     const url = new URL(window.location.href);
     url.searchParams.delete('payment');
+    url.searchParams.delete('session_id');
     window.history.replaceState({}, '', url.pathname);
 
     return {
@@ -75,6 +80,7 @@ function tryRestoreFromPaymentRedirect(portalType: 'b2b' | 'vc'): {
       },
       savedSubmissionId: saved.submissionId,
       savedCompletedSteps: saved.completedSteps,
+      stripeSessionId,
     };
   } catch {
     localStorage.removeItem(PAYMENT_REDIRECT_KEY);
@@ -342,6 +348,7 @@ export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string;
     loading,
     error,
     restoredFromPayment: !!restored,
+    stripeSessionId: restored?.stripeSessionId || null,
     goTo,
     updateFormData,
     submitDetails,
