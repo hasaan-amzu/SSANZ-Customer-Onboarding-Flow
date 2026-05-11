@@ -155,8 +155,11 @@ function CalendarPicker({ config, data, payment, signature, pkg, onBook }: Calen
       const displayDate = utcDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
       const bookingDisplay = `${displayDate} at ${selectedSlot.localDisplay}`;
 
-      // Fire confirmation email (non-blocking — don't delay the UI)
+      // Fire confirmation email with contract PDF (non-blocking — don't delay the UI)
       if (SUPABASE_URL) {
+        const signedDate = signature?.timestamp
+          ? new Date(signature.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+          : '';
         fetch(CONFIRMATION_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -169,12 +172,21 @@ function CalendarPicker({ config, data, payment, signature, pkg, onBook }: Calen
             packageName: pkg?.name || 'N/A',
             setupFee: pkg?.setupFee || 0,
             monthlyFee: pkg?.monthlyFee || 0,
-            signedDate: signature?.timestamp
-              ? new Date(signature.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-              : '',
+            signedDate,
             bookingDisplay,
             meetLink: result.meetLink || '',
             portalType: config.portalType,
+            contract: {
+              entityName: config.contract.entityName,
+              entityType: config.contract.entityType,
+              jurisdiction: config.contract.jurisdiction,
+              clauses: config.contract.clauses,
+            },
+            signatureDetails: signature ? {
+              name: signature.name,
+              ip: signature.ip,
+              timestamp: signature.timestamp,
+            } : null,
           }),
         }).catch(err => console.error('Confirmation email failed:', err));
       }
