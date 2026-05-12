@@ -289,7 +289,7 @@ export function usePortalState(portalType: 'b2b' | 'vc', packages: { id: string;
       setState(prev => ({ ...prev, payment }));
       if (submissionId.current) {
         const isFirstTime = !completedSteps.current.has('paid');
-        const ok = await updatePayment(submissionId.current, payment, isFirstTime);
+        const ok = await updatePayment(submissionId.current, payment);
         if (!ok) { setError('Failed to save payment. Please try again.'); return; }
         completedSteps.current.add('paid');
       }
