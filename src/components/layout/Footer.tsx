@@ -1,12 +1,15 @@
+import type { Branding } from '../../types/portal';
+import { B2B_BRANDING } from '../../config/shared';
+
 interface FooterProps {
-  domain?: string;
+  branding?: Branding;
 }
 
-export function Footer({ domain = 'onboard.ssanzgrowthai.com' }: FooterProps) {
+export function Footer({ branding = B2B_BRANDING }: FooterProps) {
   return (
     <footer className="text-center py-4 border-t border-line">
       <p className="font-mono text-[11px] tracking-widest uppercase text-muted">
-        SSANZ Growth AI &middot; Secure onboarding &middot; {domain}
+        {branding.name} {branding.nameAccent} &middot; Secure onboarding &middot; {branding.domain}
       </p>
     </footer>
   );

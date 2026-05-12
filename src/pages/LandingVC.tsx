@@ -5,11 +5,11 @@ import { Button } from '../components/ui/Button';
 
 export default function LandingVC() {
   const navigate = useNavigate();
-  const { landing } = vcConfig;
+  const { landing, branding } = vcConfig;
 
   return (
     <div className="min-h-screen dotted-bg flex flex-col">
-      <Header />
+      <Header branding={branding} />
       <main className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-2xl text-center py-20">
           <div className="inline-block px-4 py-1.5 border border-line rounded-full text-xs font-mono tracking-widest uppercase text-muted bg-white mb-8">

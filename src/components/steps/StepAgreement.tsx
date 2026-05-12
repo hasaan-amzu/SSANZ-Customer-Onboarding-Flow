@@ -15,7 +15,8 @@ export function StepAgreement({ config, data, onSign, onBack, saving }: StepAgre
   const pkg = config.packages.find(p => p.id === data.packageId);
   const formatMoney = (n: number) => '$' + n.toLocaleString();
   const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  const refCode = `SSA-${(data.company || 'XXX').replace(/\s+/g, '').slice(0, 4).toUpperCase()}-${new Date().getFullYear()}`;
+  const refPrefix = config.portalType === 'vc' ? 'DFS' : 'SSA';
+  const refCode = `${refPrefix}-${(data.company || 'XXX').replace(/\s+/g, '').slice(0, 4).toUpperCase()}-${new Date().getFullYear()}`;
 
   const [sig, setSig] = useState('');
   const [agreed, setAgreed] = useState(false);
@@ -48,7 +49,7 @@ export function StepAgreement({ config, data, onSign, onBack, saving }: StepAgre
         if (data.ip) ip = data.ip;
       }
     } catch {
-      // IP capture is non-blocking — proceed with 'unavailable' if it fails
+      // IP capture is non-blocking
     }
 
     onSign({
@@ -105,11 +106,11 @@ export function StepAgreement({ config, data, onSign, onBack, saving }: StepAgre
           </div>
 
           <p className="font-serif text-[13px] leading-relaxed text-ink-2 mb-4">
-            This Services Agreement ("<strong>Agreement</strong>") is entered into on{' '}
-            <span className="filled">{today}</span> (the "Effective Date") by and between{' '}
-            <strong>{config.contract.entityName}</strong>, a {config.contract.entityType} ("<strong>SSANZ</strong>"),
-            and <span className="filled">{data.company || '[COMPANY NAME]'}</span> ("<strong>Client</strong>").
-            SSANZ and Client may be referred to individually as a "Party" and collectively as the "Parties."
+            This Services Agreement (&ldquo;<strong>Agreement</strong>&rdquo;) is entered into on{' '}
+            <span className="filled">{today}</span> (the &ldquo;Effective Date&rdquo;) by and between{' '}
+            <strong>{config.contract.entityName}</strong>, a {config.contract.entityType} (&ldquo;<strong>SSANZ</strong>&rdquo;),
+            and <span className="filled">{data.company || '[COMPANY NAME]'}</span> (&ldquo;<strong>Client</strong>&rdquo;).
+            SSANZ and Client may be referred to individually as a &ldquo;Party&rdquo; and collectively as the &ldquo;Parties.&rdquo;
           </p>
 
           <table className="w-full text-[13px] mb-5 border-collapse">
@@ -151,7 +152,7 @@ export function StepAgreement({ config, data, onSign, onBack, saving }: StepAgre
         {!scrolled && (
           <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent rounded-b-lg pointer-events-none flex items-end justify-center pb-1">
             <span className="text-[10px] font-mono text-gold tracking-wider animate-pulse pointer-events-none">
-              ↓ Scroll to read full agreement
+              &darr; Scroll to read full agreement
             </span>
           </div>
         )}
