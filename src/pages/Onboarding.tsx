@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { b2bConfig } from '../config/b2b';
 import { vcConfig } from '../config/vc';
 import type { PortalConfig } from '../types/portal';
@@ -15,9 +15,14 @@ const CONFIGS: Record<string, PortalConfig> = {
   vc: vcConfig,
 };
 
+function portalTypeFromPath(pathname: string): 'b2b' | 'vc' {
+  if (pathname.startsWith('/vc')) return 'vc';
+  return 'b2b';
+}
+
 export default function Onboarding() {
-  const { portalType } = useParams<{ portalType: string }>();
-  const resolvedType = (portalType === 'b2b' || portalType === 'vc') ? portalType : 'b2b';
+  const { pathname } = useLocation();
+  const resolvedType = portalTypeFromPath(pathname);
   const config = CONFIGS[resolvedType] || b2bConfig;
   const {
     state,

@@ -96,12 +96,12 @@ export const vcConfig: PortalConfig = {
       {
         number: 3,
         title: 'Fees & Payment',
-        body: 'Client shall pay SSANZ a one-time setup fee of {{SETUP_FEE}}, due on the Effective Date, and a recurring monthly service fee of {{MONTHLY_FEE}}, billed on the same day each month thereafter for the Term. All fees are in U.S. dollars and are non-refundable except as set forth in Section 6.',
+        body: 'Client shall pay SSANZ a one-time setup fee of {{SETUP_FEE}}, due on the Effective Date, and a recurring monthly service fee of {{MONTHLY_FEE}}, billed on the same day each month thereafter for the Term. All fees are in U.S. dollars and are non-refundable.',
       },
       {
         number: 4,
         title: 'Term',
-        body: 'This Agreement commences on the Effective Date and continues for an initial term of six (6) months (the "Initial Term"). Thereafter, it shall continue on a month-to-month basis until terminated in accordance with Section 7.',
+        body: 'This Agreement commences on the Effective Date and continues for an initial term of six (6) months (the "Initial Term"). Thereafter, it shall continue on a month-to-month basis until terminated in accordance with Section 6.',
       },
       {
         number: 5,
@@ -110,26 +110,21 @@ export const vcConfig: PortalConfig = {
       },
       {
         number: 6,
-        title: '120-Day Performance Review',
-        body: 'At day 120 of the Initial Term, the Parties shall jointly review performance against agreed key performance indicators ("KPIs"). If the mutually agreed KPIs have not been met and SSANZ cannot provide a documented remediation plan, Client may opt out of the remainder of the Initial Term upon thirty (30) days\' written notice, with no further payment obligation beyond the notice period.',
-      },
-      {
-        number: 7,
         title: 'Termination',
         body: 'After the Initial Term, either Party may terminate this Agreement for convenience upon thirty (30) days\' prior written notice. Either Party may terminate immediately for uncured material breach following fifteen (15) days\' written notice and an opportunity to cure.',
       },
       {
-        number: 8,
+        number: 7,
         title: 'Intellectual Property',
         body: IP_BODY,
       },
       {
-        number: 9,
+        number: 8,
         title: 'Governing Law',
         body: 'This Agreement shall be governed by the laws of the State of Texas, without regard to its conflict of laws principles. The Parties consent to the exclusive jurisdiction of the state and federal courts located in Texas for any dispute arising hereunder.',
       },
       {
-        number: 10,
+        number: 9,
         title: 'Entire Agreement',
         body: 'This Agreement constitutes the entire agreement between the Parties with respect to its subject matter and supersedes all prior understandings, whether written or oral. Amendments must be in writing and signed by both Parties.',
       },

@@ -25,7 +25,7 @@ export function Header({ branding = B2B_BRANDING }: HeaderProps) {
         </Link>
         <nav className="flex items-center gap-5 text-[13px] text-muted">
           <a href={branding.website} target="_blank" rel="noopener noreferrer" className="hover:text-ink transition-colors">
-            {branding.domain}
+            {new URL(branding.website).hostname.replace(/^www\./, '')}
           </a>
         </nav>
       </div>
