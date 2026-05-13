@@ -14,9 +14,19 @@ function isLocalDev(): boolean {
   return host === 'localhost' || host === '127.0.0.1';
 }
 
+const TITLES: Record<string, string> = {
+  b2b: 'B2B Client Onboarding — SSANZ Growth AI',
+  vc: 'Venture Capital Client Onboarding — DealFlow Scout',
+};
+
 export default function App() {
   const portal = getPortalForHost();
   const local = isLocalDev();
+
+  document.title = TITLES[portal] || 'Client Onboarding';
+
+  const faviconEl = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+  if (faviconEl) faviconEl.href = portal === 'vc' ? '/favicon-vc.svg' : '/favicon.svg';
 
   return (
     <BrowserRouter>

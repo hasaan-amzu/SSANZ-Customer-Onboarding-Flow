@@ -13,7 +13,7 @@ interface PortalShellProps {
 
 const PORTAL_TITLES: Record<string, { label: string; accent: string }> = {
   b2b: { label: 'B2B Client', accent: 'Onboarding' },
-  vc: { label: 'DealFlow Scout', accent: 'Onboarding' },
+  vc: { label: 'Venture Capital Client', accent: 'Onboarding' },
 };
 
 export function PortalShell({ step, portalType, branding, showStepIndicator = true, children }: PortalShellProps) {
