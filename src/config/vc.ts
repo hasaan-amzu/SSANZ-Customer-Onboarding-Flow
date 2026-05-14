@@ -54,7 +54,7 @@ export const vcConfig: PortalConfig = {
       monthlyFee: 5000,
     },
   ],
-  packageNote: '6-month engagement with a 120-day review clause.',
+  packageNote: '6-month initial engagement, month-to-month thereafter.',
   formFields: {
     showWebsite: true,
     showIndustry: true,
