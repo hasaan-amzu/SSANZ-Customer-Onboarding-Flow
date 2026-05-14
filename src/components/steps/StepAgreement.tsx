@@ -131,16 +131,21 @@ export function StepAgreement({ config, data, onSign, onBack, saving }: StepAgre
             </tbody>
           </table>
 
-          {config.contract.clauses.map(clause => (
-            <div key={clause.number} className="mb-4">
-              <div className="font-serif font-bold text-[13px] text-ink mb-1">
-                {clause.number} &middot; {clause.title}
+          {config.contract.clauses.map(clause => {
+            const paragraphs = clause.body.split('\n\n');
+            return (
+              <div key={clause.number} className="mb-4">
+                <div className="font-serif font-bold text-[13px] text-ink mb-1">
+                  {clause.number} &middot; {clause.title}
+                </div>
+                {paragraphs.map((para, i) => (
+                  <p key={i} className="font-serif text-[13px] leading-relaxed text-ink-2 mb-2 last:mb-0">
+                    {renderClause(para)}
+                  </p>
+                ))}
               </div>
-              <p className="font-serif text-[13px] leading-relaxed text-ink-2">
-                {renderClause(clause.body)}
-              </p>
-            </div>
-          ))}
+            );
+          })}
 
           <hr className="border-line my-4" />
           <p className="text-[11px] text-muted leading-relaxed">
