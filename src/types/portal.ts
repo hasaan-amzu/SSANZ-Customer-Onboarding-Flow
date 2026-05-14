@@ -14,8 +14,18 @@ export interface ContractClause {
   body: string;
 }
 
+export interface Branding {
+  name: string;
+  nameAccent: string;
+  icon: string;
+  website: string;
+  domain: string;
+  contactEmail: string;
+}
+
 export interface PortalConfig {
   portalType: 'b2b' | 'vc';
+  branding: Branding;
   landing: {
     eyebrow: string;
     headline: string;

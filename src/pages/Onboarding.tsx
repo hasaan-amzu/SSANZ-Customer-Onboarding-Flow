@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { b2bConfig } from '../config/b2b';
 import { vcConfig } from '../config/vc';
 import type { PortalConfig } from '../types/portal';
@@ -15,9 +15,14 @@ const CONFIGS: Record<string, PortalConfig> = {
   vc: vcConfig,
 };
 
+function portalTypeFromPath(pathname: string): 'b2b' | 'vc' {
+  if (pathname.startsWith('/vc')) return 'vc';
+  return 'b2b';
+}
+
 export default function Onboarding() {
-  const { portalType } = useParams<{ portalType: string }>();
-  const resolvedType = (portalType === 'b2b' || portalType === 'vc') ? portalType : 'b2b';
+  const { pathname } = useLocation();
+  const resolvedType = portalTypeFromPath(pathname);
   const config = CONFIGS[resolvedType] || b2bConfig;
   const {
     state,
@@ -56,7 +61,7 @@ export default function Onboarding() {
   // Loading state while restoring session from DB
   if (loading) {
     return (
-      <PortalShell step={1} portalType={resolvedType}>
+      <PortalShell step={1} portalType={resolvedType} branding={config.branding}>
         <div className="flex flex-col items-center justify-center py-20">
           <svg className="animate-spin h-8 w-8 text-gold mb-4" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -72,6 +77,7 @@ export default function Onboarding() {
     <PortalShell
       step={state.step}
       portalType={resolvedType}
+      branding={config.branding}
     >
       {error && (
         <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">

@@ -83,7 +83,6 @@ export function StepKickoff({ config, data, payment, signature, booking, onBook,
     <CalendarPicker
       config={config}
       data={data}
-      payment={payment}
       signature={signature}
       pkg={pkg}
       onBook={onBook}
@@ -94,13 +93,12 @@ export function StepKickoff({ config, data, payment, signature, booking, onBook,
 interface CalendarPickerProps {
   config: PortalConfig;
   data: FormData;
-  payment: PaymentRecord | null;
   signature: SignatureRecord | null;
   pkg: PortalConfig['packages'][0] | undefined;
   onBook: (record: BookingRecord) => void;
 }
 
-function CalendarPicker({ config, data, payment, signature, pkg, onBook }: CalendarPickerProps) {
+function CalendarPicker({ config, data, signature, pkg, onBook }: CalendarPickerProps) {
   const userTz = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
   const [today] = useState(() => new Date());
   const [viewMonth, setViewMonth] = useState(() => today.getMonth());
@@ -155,7 +153,6 @@ function CalendarPicker({ config, data, payment, signature, pkg, onBook }: Calen
       const displayDate = utcDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
       const bookingDisplay = `${displayDate} at ${selectedSlot.localDisplay}`;
 
-      // Fire confirmation email with contract PDF (non-blocking — don't delay the UI)
       if (SUPABASE_URL) {
         const signedDate = signature?.timestamp
           ? new Date(signature.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -176,6 +173,11 @@ function CalendarPicker({ config, data, payment, signature, pkg, onBook }: Calen
             bookingDisplay,
             meetLink: result.meetLink || '',
             portalType: config.portalType,
+            branding: {
+              name: `${config.branding.name} ${config.branding.nameAccent}`,
+              contactEmail: config.branding.contactEmail,
+              domain: config.branding.domain,
+            },
             contract: {
               entityName: config.contract.entityName,
               entityType: config.contract.entityType,
@@ -231,13 +233,21 @@ function CalendarPicker({ config, data, payment, signature, pkg, onBook }: Calen
   const toDateStr = (day: number) =>
     `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
+  const meetingDescription = config.portalType === 'vc'
+    ? <>A platform onboarding session with our team. We'll configure your <strong>{pkg?.name}</strong> workflows, walk through key features, and align on go-live timelines.</>
+    : <>A working session with your SSANZ strategist. We'll review your ICP, walk through the <strong>{pkg?.name}</strong> build plan, and align on timelines.</>;
+
+  const checklistItems = config.portalType === 'vc'
+    ? ['Platform setup & configuration', 'Workflow walkthrough', 'Go-live timeline confirmed']
+    : ['Account setup checklist', 'ICP + messaging review', 'Launch date confirmed'];
+
   return (
     <div className="step-enter">
       <div className="font-mono text-[10px] tracking-widest uppercase text-gold mb-1">Step 04</div>
       <h2 className="font-head text-xl md:text-2xl font-extrabold text-ink mb-0.5">Book your kickoff</h2>
       <p className="text-muted text-sm mb-4 flex items-center gap-2">
-        <span className="text-success text-lg">●</span>
-        Payment confirmed ({payment?.ref}). Pick a time that works — we'll take it from here.
+        <span className="text-success text-lg">&bull;</span>
+        Payment confirmed &mdash; pick a time that works and we'll take it from here.
       </p>
 
       {error && (
@@ -246,19 +256,18 @@ function CalendarPicker({ config, data, payment, signature, pkg, onBook }: Calen
 
       <div className="grid grid-cols-1 md:grid-cols-5 border border-line rounded-l overflow-hidden bg-white shadow-subtle">
         <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-line md:col-span-2">
-          <div className="font-mono text-[10px] tracking-widest uppercase text-muted mb-2">SSANZ Growth AI</div>
+          <div className="font-mono text-[10px] tracking-widest uppercase text-muted mb-2">{config.branding.name} {config.branding.nameAccent}</div>
           <h4 className="font-bold text-lg text-ink mb-2">{config.meetingTitle}</h4>
           <div className="flex items-center gap-2 text-sm text-muted mb-3">
             <span>&#128336;</span> {config.meetingDuration} &middot; {config.meetingPlatform}
           </div>
           <p className="text-sm text-ink-2 leading-relaxed mb-4">
-            A working session with your SSANZ strategist. We'll review your ICP, walk through the{' '}
-            <strong>{pkg?.name}</strong> build plan, and align on timelines.
+            {meetingDescription}
           </p>
           <ul className="space-y-2 text-sm text-ink-2 mb-5">
-            {['Account setup checklist', 'ICP + messaging review', 'Launch date confirmed'].map(item => (
+            {checklistItems.map(item => (
               <li key={item} className="flex items-center gap-2">
-                <span className="text-gold">→</span> {item}
+                <span className="text-gold">&rarr;</span> {item}
               </li>
             ))}
           </ul>
@@ -269,9 +278,9 @@ function CalendarPicker({ config, data, payment, signature, pkg, onBook }: Calen
 
         <div className="md:col-span-3 p-6">
           <div className="flex items-center justify-between mb-4">
-            <button onClick={goPrevMonth} disabled={!canGoPrev} className="w-8 h-8 flex items-center justify-center rounded-full border border-line bg-white text-ink hover:bg-bg transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">←</button>
+            <button onClick={goPrevMonth} disabled={!canGoPrev} className="w-8 h-8 flex items-center justify-center rounded-full border border-line bg-white text-ink hover:bg-bg transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">&larr;</button>
             <span className="font-semibold text-ink">{monthLabel}</span>
-            <button onClick={goNextMonth} className="w-8 h-8 flex items-center justify-center rounded-full border border-line bg-white text-ink hover:bg-bg transition-colors cursor-pointer">→</button>
+            <button onClick={goNextMonth} className="w-8 h-8 flex items-center justify-center rounded-full border border-line bg-white text-ink hover:bg-bg transition-colors cursor-pointer">&rarr;</button>
           </div>
 
           <div className="grid grid-cols-7 text-center text-xs font-mono text-muted mb-1">
@@ -360,6 +369,18 @@ function Confirmation({ config, data, payment, signature, booking, formatMoney, 
   const firstName = (data.fullName || '').split(' ')[0];
   const fmtTime = (d: Date) => d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
+  const nextSteps = config.portalType === 'vc'
+    ? [
+        'Our team reviews your profile and prepares your platform environment.',
+        `Join your onboarding call — we'll walk through setup, workflows, and timelines.`,
+        `Your ${pkg?.name} platform goes live within 10 business days.`,
+      ]
+    : [
+        'Your strategist reviews your company + ICP before the call.',
+        'We send a short pre-call questionnaire (2 minutes) to your inbox within 24 hours.',
+        'On the call, we align on launch date and go live within 10 business days.',
+      ];
+
   return (
     <div className="step-enter">
       <div className="text-center mb-10">
@@ -377,10 +398,10 @@ function Confirmation({ config, data, payment, signature, booking, formatMoney, 
 
       <div className="border border-line rounded-l overflow-hidden bg-white shadow-subtle mb-8">
         {[
-          { label: 'Package', value: <><strong>{pkg?.name}</strong> &middot; {formatMoney(pkg?.setupFee || 0)} setup + {formatMoney(pkg?.monthlyFee || 0)}/mo</>, meta: <><span className="text-gold">✓</span> Selected</> },
-          { label: 'Agreement', value: <>Signed by {data.fullName}, {data.role}</>, meta: signedAt ? <><span className="text-gold">✓</span> {fmtTime(signedAt)}</> : null },
-          { label: 'Payment', value: <>{formatMoney(payment?.amount || 0)} &middot; Ref <code className="font-mono text-xs">{(payment?.ref || '').slice(-8)}</code></>, meta: paidAt ? <><span className="text-gold">✓</span> {fmtTime(paidAt)}</> : null },
-          { label: 'Kickoff call', value: <>{booking.display} &middot; {config.meetingPlatform}</>, meta: <><span className="text-gold">✓</span> Booked</> },
+          { label: 'Package', value: <><strong>{pkg?.name}</strong> &middot; {formatMoney(pkg?.setupFee || 0)} setup + {formatMoney(pkg?.monthlyFee || 0)}/mo</>, meta: <><span className="text-gold">&#10003;</span> Selected</> },
+          { label: 'Agreement', value: <>Signed by {data.fullName}, {data.role}</>, meta: signedAt ? <><span className="text-gold">&#10003;</span> {fmtTime(signedAt)}</> : null },
+          { label: 'Payment', value: <>{formatMoney(payment?.amount || 0)} &middot; Ref <code className="font-mono text-xs">{(payment?.ref || '').slice(-8)}</code></>, meta: paidAt ? <><span className="text-gold">&#10003;</span> {fmtTime(paidAt)}</> : null },
+          { label: 'Kickoff call', value: <>{booking.display} &middot; {config.meetingPlatform}</>, meta: <><span className="text-gold">&#10003;</span> Booked</> },
         ].map((row, i) => (
           <div key={i} className="flex items-center justify-between px-6 py-4 border-b border-line last:border-0">
             <span className="font-mono text-[10px] tracking-widest uppercase text-muted w-24 flex-shrink-0">{row.label}</span>
@@ -393,16 +414,16 @@ function Confirmation({ config, data, payment, signature, booking, formatMoney, 
       <div className="border-l-4 border-gold bg-white rounded-r-l px-6 py-5 mb-8">
         <h4 className="font-bold text-ink mb-3">What happens <span className="text-gold">next</span></h4>
         <ol className="space-y-2 text-sm text-ink-2 list-decimal list-inside">
-          <li>Your strategist reviews your company + ICP before the call.</li>
-          <li>We send a short pre-call questionnaire (2 minutes) to your inbox within 24 hours.</li>
-          <li>On the call, we align on launch date and go live within 10 business days.</li>
+          {nextSteps.map((step, i) => (
+            <li key={i}>{step}</li>
+          ))}
         </ol>
-        <p className="mt-4 text-xs text-muted">Questions in the meantime? Reply to your confirmation email or reach us at {config.contactEmail}.</p>
+        <p className="mt-4 text-xs text-muted">Questions in the meantime? Reply to your confirmation email or reach us at {config.branding.contactEmail}.</p>
       </div>
 
       {import.meta.env.DEV && (
         <div className="text-center">
-          <button onClick={onReset} className="text-sm text-muted underline cursor-pointer bg-transparent border-0">↻ Restart</button>
+          <button onClick={onReset} className="text-sm text-muted underline cursor-pointer bg-transparent border-0">Restart</button>
         </div>
       )}
     </div>

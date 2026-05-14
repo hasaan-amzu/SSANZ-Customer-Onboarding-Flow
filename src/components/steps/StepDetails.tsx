@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { PortalConfig, FormData } from '../../types/portal';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
@@ -17,9 +17,15 @@ const OPTION_LABELS = ['Option A', 'Option B', 'Option C'];
 
 export function StepDetails({ config, data, onChange, onNext, saving }: StepDetailsProps) {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const singlePackage = config.packages.length === 1;
+
+  useEffect(() => {
+    if (singlePackage && data.packageId !== config.packages[0].id) {
+      onChange({ packageId: config.packages[0].id });
+    }
+  }, [singlePackage, config.packages, data.packageId, onChange]);
 
   const touch = (field: string) => setTouched(prev => ({ ...prev, [field]: true }));
-
   const formatMoney = (n: number) => '$' + n.toLocaleString();
 
   const requiredFields = useMemo(() => {
@@ -58,14 +64,10 @@ export function StepDetails({ config, data, onChange, onNext, saving }: StepDeta
 
   return (
     <form className="step-enter" onSubmit={handleSubmit} noValidate>
-      <div className="font-mono text-[10px] tracking-widest uppercase text-gold mb-0.5">
-        Step 01
-      </div>
-      <h2 className="font-head text-xl md:text-2xl font-extrabold text-ink mb-0.5">
-        Client details
-      </h2>
+      <div className="font-mono text-[10px] tracking-widest uppercase text-gold mb-0.5">Step 01</div>
+      <h2 className="font-head text-xl md:text-2xl font-extrabold text-ink mb-0.5">Client details</h2>
       <p className="text-muted text-sm mb-4">
-        Tell us who you are and which engagement fits best.
+        {singlePackage ? 'Tell us who you are so we can get you set up.' : 'Tell us who you are and which engagement fits best.'}
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
@@ -113,27 +115,47 @@ export function StepDetails({ config, data, onChange, onNext, saving }: StepDeta
         </div>
       )}
 
-      <div className="mt-4 mb-2">
-        <div className="font-mono text-[10px] tracking-widest uppercase text-muted mb-2">
-          Select your package
+      {singlePackage ? (
+        <div className="mt-4 mb-4">
+          <div className="font-mono text-[10px] tracking-widest uppercase text-muted mb-2">Your package</div>
+          <div className="border border-line rounded-lg p-4 bg-bg/30">
+            <div className="flex items-center justify-between mb-1">
+              <h4 className="font-bold text-ink">{config.packages[0].name}</h4>
+              <span className="text-gold font-mono text-xs">&#10003; Selected</span>
+            </div>
+            <p className="text-sm text-muted mb-2">{config.packages[0].description}</p>
+            {(config.packages[0].setupFee > 0 || config.packages[0].monthlyFee > 0) && (
+              <div className="flex gap-4 text-sm">
+                {config.packages[0].setupFee > 0 && (
+                  <span className="text-ink">{formatMoney(config.packages[0].setupFee)} <span className="text-muted">setup</span></span>
+                )}
+                {config.packages[0].monthlyFee > 0 && (
+                  <span className="text-ink">{formatMoney(config.packages[0].monthlyFee)}<span className="text-muted">/mo</span></span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 mb-2">
-        {config.packages.map((pkg, i) => (
-          <RadioCard key={pkg.id} pkg={pkg} selected={data.packageId === pkg.id}
-            onSelect={() => onChange({ packageId: pkg.id })} formatMoney={formatMoney}
-            optionLabel={!pkg.recommended ? OPTION_LABELS[i] : undefined} />
-        ))}
-      </div>
-      {touched.packageId && !data.packageId && (
-        <span className="text-xs text-error block mt-1">Please select a package to continue</span>
+      ) : (
+        <>
+          <div className="mt-4 mb-2">
+            <div className="font-mono text-[10px] tracking-widest uppercase text-muted mb-2">Select your package</div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 mb-2">
+            {config.packages.map((pkg, i) => (
+              <RadioCard key={pkg.id} pkg={pkg} selected={data.packageId === pkg.id}
+                onSelect={() => onChange({ packageId: pkg.id })} formatMoney={formatMoney}
+                optionLabel={!pkg.recommended ? OPTION_LABELS[i] : undefined} />
+            ))}
+          </div>
+          {touched.packageId && !data.packageId && (
+            <span className="text-xs text-error block mt-1">Please select a package to continue</span>
+          )}
+        </>
       )}
 
       <div className="text-center mt-2 mb-4">
-        <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted">
-          6-month partnership &middot; 120-day satisfaction guarantee
-        </span>
+        <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted">{config.packageNote}</span>
       </div>
 
       <div className="flex justify-center">

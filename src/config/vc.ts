@@ -1,50 +1,83 @@
 import type { PortalConfig } from '../types/portal';
-import { COMPANY, INDUSTRIES, REFERRAL_OPTIONS } from './shared';
+import { COMPANY, VC_BRANDING } from './shared';
+
+const IP_BODY = [
+  'The DealFlow Scout platform, including all software, systems, algorithms, workflows,',
+  'automations, interfaces, templates, dashboards, documentation, and related tooling,',
+  'shall remain the exclusive property of SSANZ and its licensors.',
+  '\n\nClient retains ownership of its pre-existing materials, uploaded content, proprietary',
+  'business information, customer information, and data provided to SSANZ in connection',
+  'with use of the platform.',
+  '\n\nSubject to Client\'s compliance with this Agreement, SSANZ grants Client a limited,',
+  'non-transferable, non-exclusive right to access and use the DealFlow Scout platform',
+  'during the Term solely for Client\'s internal business purposes.',
+].join(' ');
+
+const SERVICES_BODY = [
+  'SSANZ will provide the services and access described in the applicable DealFlow Scout',
+  'package, including onboarding, account configuration, platform access, AI-powered deal',
+  'sourcing functionality, workflow setup, and ongoing platform support and optimization.',
+  '\n\nDealFlow Scout is a software-as-a-service ("SaaS") platform designed to assist Client',
+  'with identifying, organizing, and managing potential opportunities, leads, or acquisition',
+  'targets through AI-assisted search, filtering, enrichment, and workflow automation tools.',
+  'Client acknowledges that platform features, integrations, and functionality may evolve',
+  'over time as SSANZ continues to improve and update the platform.',
+  '\n\nSSANZ will use commercially reasonable efforts to maintain platform availability and',
+  'perform the Services in a professional and workmanlike manner.',
+].join(' ');
+
+const PLATFORM_REVIEW_BODY = [
+  'SSANZ will provide commercially reasonable onboarding, support, and ongoing optimization',
+  'for the DealFlow Scout platform during the Term. Client acknowledges that DealFlow Scout',
+  'is a software platform and that results may vary based on Client usage, market conditions,',
+  'data availability, and other external factors outside SSANZ\'s control.',
+  '\n\nUnless expressly stated in writing, SSANZ does not guarantee any specific business results,',
+  'deal flow volume, revenue outcomes, or acquisition opportunities through use of the platform.',
+].join(' ');
 
 export const vcConfig: PortalConfig = {
   portalType: 'vc',
+  branding: VC_BRANDING,
   landing: {
-    eyebrow: 'VENTURE CAPITAL ONBOARDING',
-    headline: 'Scale your portfolio with',
-    headlineAccent: 'AI-powered growth.',
-    description: 'A concierge onboarding experience for VC partners enabling portfolio companies with bespoke AI-powered outbound and growth infrastructure.',
-    ctaText: 'Begin onboarding',
+    eyebrow: 'DEALFLOW SCOUT',
+    headline: 'AI-Powered',
+    headlineAccent: 'Deal Sourcing Engine',
+    description: 'Identify, organize, and manage potential opportunities through AI-assisted search, filtering, enrichment, and workflow automation.',
+    ctaText: 'Get started',
   },
   packages: [
     {
-      id: 'email',
-      name: 'Email Only',
-      description: 'Cold email infrastructure deployed across portfolio companies.',
-      setupFee: 3500,
-      monthlyFee: 3500,
-      pricingLabel: 'From $3,500 / month',
-    },
-    {
-      id: 'linkedin',
-      name: 'LinkedIn Only',
-      description: 'LinkedIn outbound for portfolio leadership and GTM teams.',
-      setupFee: 3500,
-      monthlyFee: 3500,
-      pricingLabel: 'From $3,500 / month',
-    },
-    {
-      id: 'fullstack',
-      name: 'Full Stack AI',
-      description: 'Full growth engine across portfolio.',
-      setupFee: 7500,
-      monthlyFee: 7500,
-      recommended: true,
-      pricingLabel: 'From $7,500 / month',
+      id: 'dealflow',
+      name: 'DealFlow Scout',
+      description: 'AI-Powered Deal Sourcing Engine — full platform access, onboarding, configuration, and ongoing support.',
+      setupFee: 15000,
+      monthlyFee: 5000,
     },
   ],
-  packageNote: 'All packages are 6-month engagements with a 120-day review clause.',
+  packageNote: '6-month initial engagement, month-to-month thereafter.',
   formFields: {
-    showWebsite: false,
-    showIndustry: false,
-    showReferral: false,
+    showWebsite: true,
+    showIndustry: true,
+    showReferral: true,
   },
-  industries: INDUSTRIES,
-  referralOptions: REFERRAL_OPTIONS,
+  industries: [
+    'Venture Capital',
+    'Private Equity',
+    'Family Office',
+    'Angel Investing',
+    'Corporate Development / M&A',
+    'Real Estate Investment',
+    'Fund of Funds',
+    'Other',
+  ],
+  referralOptions: [
+    'LinkedIn',
+    'Referral',
+    'Conference / Event',
+    'Google search',
+    'Case study',
+    'Other',
+  ],
   contract: {
     entityName: COMPANY.legalName,
     entityType: COMPANY.entityType,
@@ -53,27 +86,27 @@ export const vcConfig: PortalConfig = {
       {
         number: 1,
         title: 'Services',
-        body: 'SSANZ will provide the services described in the {{PACKAGE_NAME}} package, including strategy, setup, outbound infrastructure, and ongoing optimization as further detailed in SSANZ\'s published package specifications. SSANZ will use commercially reasonable efforts to perform the Services in a professional and workmanlike manner.',
+        body: SERVICES_BODY,
       },
       {
         number: 2,
-        title: 'Fees & Payment',
-        body: 'Client shall pay SSANZ a one-time setup fee of {{SETUP_FEE}}, due on the Effective Date, and a recurring monthly service fee of {{MONTHLY_FEE}}, billed on the same day each month thereafter for the Term. All fees are in U.S. dollars and are non-refundable except as set forth in Section 5.',
+        title: 'Platform Review & Support',
+        body: PLATFORM_REVIEW_BODY,
       },
       {
         number: 3,
+        title: 'Fees & Payment',
+        body: 'Client shall pay SSANZ a one-time setup fee of {{SETUP_FEE}}, due on the Effective Date, and a recurring monthly service fee of {{MONTHLY_FEE}}, billed on the same day each month thereafter for the Term. All fees are in U.S. dollars and are non-refundable.',
+      },
+      {
+        number: 4,
         title: 'Term',
         body: 'This Agreement commences on the Effective Date and continues for an initial term of six (6) months (the "Initial Term"). Thereafter, it shall continue on a month-to-month basis until terminated in accordance with Section 6.',
       },
       {
-        number: 4,
+        number: 5,
         title: 'Confidentiality',
         body: 'Each Party agrees to hold in strict confidence all non-public information disclosed by the other Party in connection with this Agreement. This obligation shall survive termination for a period of two (2) years and excludes information that is publicly available, independently developed, or required to be disclosed by law.',
-      },
-      {
-        number: 5,
-        title: '120-Day Performance Review',
-        body: 'At day 120 of the Initial Term, the Parties shall jointly review performance against agreed key performance indicators ("KPIs"). If the mutually agreed KPIs have not been met and SSANZ cannot provide a documented remediation plan, Client may opt out of the remainder of the Initial Term upon thirty (30) days\' written notice, with no further payment obligation beyond the notice period.',
       },
       {
         number: 6,
@@ -83,7 +116,7 @@ export const vcConfig: PortalConfig = {
       {
         number: 7,
         title: 'Intellectual Property',
-        body: 'All systems, workflows, campaigns, playbooks, and tooling developed by SSANZ shall remain the exclusive property of SSANZ during the term of engagement. Client retains ownership of its pre-existing materials, data, brand assets, and customer information provided to SSANZ.',
+        body: IP_BODY,
       },
       {
         number: 8,
@@ -98,13 +131,11 @@ export const vcConfig: PortalConfig = {
     ],
   },
   stripeLinks: {
-    email: import.meta.env.VITE_STRIPE_VC_EMAIL || '',
-    linkedin: import.meta.env.VITE_STRIPE_VC_LINKEDIN || '',
-    fullstack: import.meta.env.VITE_STRIPE_VC_FULLSTACK || '',
+    dealflow: import.meta.env.VITE_STRIPE_VC_DEALFLOW || '',
   },
   calendarEmbedUrl: COMPANY.calendarEmbedUrl,
-  meetingTitle: 'Kickoff Strategy Call',
+  meetingTitle: 'Platform Onboarding Call',
   meetingDuration: '30 minutes',
   meetingPlatform: 'Google Meet',
-  contactEmail: COMPANY.contactEmail,
+  contactEmail: VC_BRANDING.contactEmail,
 };

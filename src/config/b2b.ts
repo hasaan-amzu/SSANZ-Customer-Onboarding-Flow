@@ -1,8 +1,9 @@
 import type { PortalConfig } from '../types/portal';
-import { COMPANY, INDUSTRIES, REFERRAL_OPTIONS } from './shared';
+import { COMPANY, INDUSTRIES, REFERRAL_OPTIONS, B2B_BRANDING } from './shared';
 
 export const b2bConfig: PortalConfig = {
   portalType: 'b2b',
+  branding: B2B_BRANDING,
   landing: {
     eyebrow: 'B2B CLIENT ONBOARDING',
     headline: 'Begin your',

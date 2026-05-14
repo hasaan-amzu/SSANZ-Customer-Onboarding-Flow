@@ -1,26 +1,28 @@
 import { Link } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import type { Branding } from '../../types/portal';
 
 interface PortalShellProps {
   step: number;
   portalType: 'b2b' | 'vc';
+  branding?: Branding;
   showStepIndicator?: boolean;
   children: React.ReactNode;
 }
 
 const PORTAL_TITLES: Record<string, { label: string; accent: string }> = {
   b2b: { label: 'B2B Client', accent: 'Onboarding' },
-  vc: { label: 'VC Partner', accent: 'Onboarding' },
+  vc: { label: 'Venture Capital Client', accent: 'Onboarding' },
 };
 
-export function PortalShell({ step, portalType, showStepIndicator = true, children }: PortalShellProps) {
+export function PortalShell({ step, portalType, branding, showStepIndicator = true, children }: PortalShellProps) {
   const title = PORTAL_TITLES[portalType] || PORTAL_TITLES.b2b;
   const progress = ((Math.min(step, 4) - 1) / 3) * 100;
 
   return (
     <div className="min-h-screen flex flex-col dotted-bg">
-      <Header />
+      <Header branding={branding} />
       <main className="flex-1 w-full max-w-[780px] mx-auto px-5 md:px-6 py-5">
         <Link
           to={`/${portalType}`}
@@ -49,7 +51,7 @@ export function PortalShell({ step, portalType, showStepIndicator = true, childr
           {children}
         </div>
       </main>
-      <Footer />
+      <Footer branding={branding} />
     </div>
   );
 }
