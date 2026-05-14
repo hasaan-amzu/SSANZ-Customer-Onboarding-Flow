@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingB2B from './pages/LandingB2B';
 import LandingVC from './pages/LandingVC';
@@ -23,10 +24,11 @@ export default function App() {
   const portal = getPortalForHost();
   const local = isLocalDev();
 
-  document.title = TITLES[portal] || 'Client Onboarding';
-
-  const faviconEl = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-  if (faviconEl) faviconEl.href = portal === 'vc' ? '/favicon-vc.svg' : '/favicon.svg';
+  useEffect(() => {
+    document.title = TITLES[portal] || 'Client Onboarding';
+    const faviconEl = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (faviconEl) faviconEl.href = portal === 'vc' ? '/favicon-vc.svg' : '/favicon.svg';
+  }, [portal]);
 
   return (
     <BrowserRouter>
